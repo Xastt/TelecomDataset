@@ -7,8 +7,8 @@ RESULTS_DIR = BASE_DIR / 'results'
 
 class Config:
     # Размеры наборов
-    SMALL_DATASET_SIZE = 10_000  # ~500k записей в stats
-    BIG_DATASET_SIZE = 500_000  # ~25M записей в stats
+    SMALL_DATASET_SIZE = 10_000  # 500k записей в stats
+    BIG_DATASET_SIZE = 500_000  # 25M записей в stats
 
     # Вероятности
     COMPANY_RATIO = 0.2  # Доля юр.лиц
