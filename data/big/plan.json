@@ -1,0 +1,50 @@
+[
+  {
+    "Id": 0,
+    "Name": "Start",
+    "Description": "Minimal plan",
+    "CreatedAt": 1606089600000,
+    "Enabled": true,
+    "Attrs": "I,1000,24"
+  },
+  {
+    "Id": 1,
+    "Name": "Basic",
+    "Description": "Basic plan",
+    "CreatedAt": 1609459200000,
+    "Enabled": true,
+    "Attrs": "I,5000,24"
+  },
+  {
+    "Id": 2,
+    "Name": "Advanced",
+    "Description": "Advanced plan",
+    "CreatedAt": 1612137600000,
+    "Enabled": true,
+    "Attrs": "I,10000,24"
+  },
+  {
+    "Id": 3,
+    "Name": "Premium",
+    "Description": "Premium plan",
+    "CreatedAt": 1614556800000,
+    "Enabled": true,
+    "Attrs": "U,0,24"
+  },
+  {
+    "Id": 4,
+    "Name": "Business",
+    "Description": "Business plan",
+    "CreatedAt": 1617235200000,
+    "Enabled": true,
+    "Attrs": "I,20000,24"
+  },
+  {
+    "Id": 5,
+    "Name": "Enterprise",
+    "Description": "Enterprise plan",
+    "CreatedAt": 1619827200000,
+    "Enabled": true,
+    "Attrs": "U,0,24"
+  }
+]
