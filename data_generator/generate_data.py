@@ -225,26 +225,39 @@ class DataGenerator:
     def _detect_anomalies(self, clients, subscribers, psx_stats):
         print("Обнаружение аномалий...")
 
-        # Создаем DF для анализа
+        # Конвертируем в pandas DataFrame
+        df_subscribers = pd.DataFrame(subscribers)
         df_stats = pd.DataFrame(psx_stats)
-        df_stats['TotalTraffic'] = df_stats['UpTx'] + df_stats['DownTx']
 
-        # Агрегируем по подписчикам
-        traffic_stats = df_stats.groupby('IdSubscriber').agg({
-            'TotalTraffic': 'sum',
-            'IdSession': 'count'
-        }).rename(columns={'IdSession': 'Sessions'})
+        # Оптимизация 1: Работаем с chunk'ами
+        chunk_size = 100_000
+        anomalies = []
 
-        # Вычисляем статистики
-        mean = traffic_stats['TotalTraffic'].mean()
-        std = traffic_stats['TotalTraffic'].std()
-        threshold = mean + 5 * std
+        for i in tqdm(range(0, len(df_stats), chunk_size),
+                      desc="Анализ трафика"):
+            chunk = df_stats.iloc[i:i + chunk_size]
 
-        # Находим аномалии
-        anomalies = traffic_stats[traffic_stats['TotalTraffic'] > threshold].index.tolist()
+            # Агрегируем трафик по подписчикам в chunk'е
+            traffic_chunk = chunk.groupby('IdSubscriber').agg({
+                'UpTx': 'sum',
+                'DownTx': 'sum'
+            })
+            traffic_chunk['TotalTraffic'] = traffic_chunk['UpTx'] + traffic_chunk['DownTx']
+
+            # Вычисляем статистики по всему набору (1 раз)
+            if i == 0:
+                mean = traffic_chunk['TotalTraffic'].mean()
+                std = traffic_chunk['TotalTraffic'].std()
+                threshold = mean + 5 * std
+
+            # Находим аномалии в chunk'е
+            chunk_anomalies = traffic_chunk[traffic_chunk['TotalTraffic'] > threshold].index.tolist()
+            anomalies.extend(chunk_anomalies)
+
+        # Убираем дубликаты (если подписчик попал в несколько chunk'ов)
+        anomalies = list(set(anomalies))
 
         # Сопоставляем с клиентами
-        df_subscribers = pd.DataFrame(subscribers)
         anomaly_clients = df_subscribers[df_subscribers['IdOnPSX'].isin(anomalies)]['IdClient'].tolist()
 
         return anomaly_clients

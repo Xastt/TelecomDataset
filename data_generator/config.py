@@ -15,7 +15,7 @@ class Config:
     ANOMALY_RATIO = 0.01  # Доля аномалий
 
     # Диапазоны
-    PSX_RANGE = (1000, 99999)  # Диапазон ID оборудования
+    PSX_RANGE = (1000, 999999)  # Диапазон ID оборудования
     SESSION_DURATION = (3600, 86400)  # Длительность сессии (сек)
 
     DATE_FORMATS = [
