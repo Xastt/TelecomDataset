@@ -8,7 +8,7 @@ from faker import Faker
 from tqdm import tqdm
 from pathlib import Path
 
-from .config import Config, DATA_DIR, RESULTS_DIR
+from data_generator.config import Config, DATA_DIR, RESULTS_DIR
 
 #иниц Faker
 fake = Faker()
