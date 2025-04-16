@@ -139,29 +139,36 @@ class DataGenerator:
                 f"{random.choice(['A', 'B', 'C', 'D'])}{random.randint(1000, 9999)}")
 
     def _generate_subscribers(self, clients):
-        subscribers = []
-        used_psx_ids = set()
 
-        for client in tqdm(clients, desc="Генерация подписчиков"):
-            while True:
-                id_on_psx = random.randint(*Config.PSX_RANGE)
-                if id_on_psx not in used_psx_ids:
-                    used_psx_ids.add(id_on_psx)
-                    break
+        available_psx_ids = random.sample(
+            range(*Config.PSX_RANGE),
+            len(clients)
+        )
 
-            subscribers.append({
-                "IdClient": client["Id"],
-                "IdOnPSX": id_on_psx,
-                "Status": "ON" if random.random() > 0.05 else "OFF"
-            })
+        data = np.zeros(len(clients), dtype=[
+            ('IdClient', 'U36'),
+            ('IdOnPSX', 'i4'),
+            ('Status', 'U3')
+        ])
 
-        return subscribers
+        for i in tqdm(range(len(clients)), desc="Генерация подписчиков"):
+            data[i] = (
+                clients[i]["Id"],
+                available_psx_ids[i],
+                "ON" if random.random() > 0.05 else "OFF"
+            )
+
+        return pd.DataFrame(data)
 
     def _generate_psx_stats(self, subscribers, dataset_type):
         stats = []
         num_sessions_multiplier = 5 if dataset_type == 'small' else 10
 
-        for sub in tqdm(subscribers, desc="Генерация статистики"):
+        # Преобразуем subscribers в DataFrame, если это еще не сделано
+        if not isinstance(subscribers, pd.DataFrame):
+            subscribers = pd.DataFrame(subscribers)
+
+        for _, sub in tqdm(subscribers.iterrows(), total=len(subscribers), desc="Генерация статистики"):
             if sub["Status"] == "OFF":
                 continue
 
@@ -180,14 +187,13 @@ class DataGenerator:
                 else:
                     end_session = ""
 
-                #ген трафика + аномалии
-                is_anomaly = random.random() < Config.ANOMALY_RATIO
+                # Генерация трафика
                 if psx_config["TransmitUnits"] == "bits":
-                    base = 10_000_000_000 if is_anomaly else 100_000_000
+                    base = 10_000_000_000 if random.random() < Config.ANOMALY_RATIO else 100_000_000
                     up_tx = random.randint(base, base * 100)
                     down_tx = random.randint(base, base * 100)
                 else:
-                    base = 1_000_000_000 if is_anomaly else 10_000_000
+                    base = 1_000_000_000 if random.random() < Config.ANOMALY_RATIO else 10_000_000
                     up_tx = random.randint(base, base * 100)
                     down_tx = random.randint(base, base * 100)
 
